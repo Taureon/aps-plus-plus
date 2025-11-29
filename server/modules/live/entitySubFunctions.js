@@ -190,7 +190,7 @@ class HealthType {
                     damageToMax);
         }
     }
-    regenerate(boost = false) {
+    regenerate(boost = 0) {
         boost /= 2;
         let cons = 5;
         switch (this.type) {
@@ -234,8 +234,6 @@ const dirtyCheck = function (p, r) {
     return false
 };
 
-const purgeEntities = () => entities = entities.filter(e => !e.isGhost);
-
 let remapTarget = (i, ref, self) => {
     if (i.target == null || !(i.main || i.alt)) return undefined;
     return {
@@ -261,4 +259,4 @@ lazyRealSizes = new Proxy(lazyRealSizes, {
     }
 });
 
-module.exports = { skcnv, Skill, HealthType, dirtyCheck, purgeEntities, remapTarget, lazyRealSizes };
+module.exports = { skcnv, Skill, HealthType, dirtyCheck, remapTarget, lazyRealSizes };

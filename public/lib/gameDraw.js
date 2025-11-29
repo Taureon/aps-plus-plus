@@ -11,23 +11,33 @@ var gameDraw = {
     hex2decimal: (h) => {
         return parseInt(h, 16);
     }, // convert a hex value to decimal
-    mixColors: (color_2, color_1, weight = 0.5) => {
-        if (weight === 1) return color_1;
-        if (weight === 0) return color_2;
-        var col = "#";
-        for (var i = 1; i <= 6; i += 2) {
-            // loop through each of the 3 hex pairs—red, green, and blue, skip the '#'
-            var v1 = gameDraw.hex2decimal(color_1.substr(i, 2)), // extract the current pairs
-                v2 = gameDraw.hex2decimal(color_2.substr(i, 2)),
-                // combine the current pairs from each source color, according to the specified weight
-                val = gameDraw.decimal2hex(Math.floor(v2 + (v1 - v2) * weight));
-            while (val.length < 2) {
-                val = "0" + val;
-            } // prepend a '0' if val results in a single digit
-            col += val; // concatenate val to our new color string
+    mixColors: (function () {
+        const mixCache = new Map();
+        const intCache = new Map();
+        return function mixColor(hex1, hex2, mix = 0.5) {
+            let c1 = intCache.get(hex1);
+            if (c1 === undefined) {
+                c1 = parseInt(hex1.slice(1), 16);
+                intCache.set(hex1, c1);
+            }
+            let c2 = intCache.get(hex2);
+            if (c2 === undefined) {
+                c2 = parseInt(hex2.slice(1), 16);
+                intCache.set(hex2, c2);
+            }
+            const key = c1 * (1 << 29) + c2 * (1 << 5) + Math.round(mix * 31);
+            if (mixCache.has(key)) {
+                return mixCache.get(key);
+            }
+            const r1 = (c1 >> 16) & 0xFF;
+            const g1 = (c1 >> 8) & 0xFF;
+            const b1 = c1 & 0xFF;
+            const result = ((1 << 24) | (((r1 + (((c2 >> 16) & 0xFF) - r1) * mix) | 0) << 16) | (((g1 + (((c2 >> 8) & 0xFF) - g1) * mix) | 0) << 8) | ((b1 + ((c2 & 0xFF) - b1) * mix) | 0));
+            const hex = '#' + (result & 0xFFFFFF).toString(16).padStart(6, '0');
+            mixCache.set(key, hex);
+            return hex;
         }
-        return col; // PROFIT!
-    },
+    })(),
     hslToRgb: (h, s, l) => {
         let r, g, b;
         if (s === 0) {

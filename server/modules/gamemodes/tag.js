@@ -7,8 +7,7 @@ function checkWin() {
     for (let i = 1; i <= Config.TEAMS; i++) {
         teams[-i] = 0;
     }
-    for (let i = 0; i < entities.length; i++) {
-        let o = entities[i];
+    for (const o of entities.values()) {
         if (o.team < 0 && (o.isPlayer || o.isBot) && isPlayerTeam(o.team)) {
             teams[o.team]++;
             all++;

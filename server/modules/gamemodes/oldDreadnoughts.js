@@ -105,7 +105,7 @@ let generateLabyrinth = (size) => {
                 y: y * mazeWallScale + mazeWallScale / 2,
             };
             
-            if (!room.getAt(d).data.allowMazeWallSpawn) continue;
+            if (room.getAt(d).data.allowMazeWallSpawn === null) continue;
             
             let o = new Entity({
                 x: d.x,

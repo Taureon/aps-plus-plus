@@ -7,7 +7,7 @@ class ManHunt {
     getLeader() {
         let highestScore = -Infinity,
             leader = { id: null };
-        for (let entity of entities) {
+        for (let entity of entities.values()) {
             if (!entity.isPlayer && !entity.isBot) continue;
             if (entity.skill.score <= highestScore) continue;
             highestScore = entity.skill.score;

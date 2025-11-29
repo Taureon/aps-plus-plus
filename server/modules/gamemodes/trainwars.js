@@ -2,11 +2,15 @@
 // https://discord.com/channels/366661839620407297/508125275675164673/1114907447195349074
 
 class Train {
-    constructor () {}
-    loop () {
-        let train_able = entities.filter(r => r.isPlayer || r.isBot),
-            teams = new Set(train_able.map(r => r.team));
-        for (let team of teams) {
+    constructor() { }
+    loop() {
+        const teams = new Set();
+        for (const entity of entities.values()) {
+            if (entity.isPlayer || entity.isBot) {
+                teams.add(entity.team);
+            }
+        }
+        for (const team of teams) {
             let train = train_able.filter(r => r.team === team && !r.invuln).sort((a, b) => b.skill.score - a.skill.score);
 
             for (let [i, player] of train.entries()) {

@@ -3128,7 +3128,7 @@ Class.undertowEffect = {
             {
              event: "tick",
              handler: ({ body }) => {
-               for (let instance of entities) {
+               for (let instance of entities.values()) {
                      let diffX = instance.x - body.x,
                          diffY = instance.y - body.y,
                          dist2 = diffX ** 2 + diffY ** 2;

@@ -1,10 +1,10 @@
 {
-  "name": "Open Source Arras",
+  "name": "open-source-arras",
   "version": "1.0.0",
   "main": "server/index.js",
   "scripts": {
-    "startOptimized": "node --optimize-for-size --no-lazy --gc_interval=120 server/index",
-    "restartOnSaveOptimized": "node --optimize-for-size --no-lazy --gc_interval=120 --watch server/index",
+    "startOptimized": "node --no-lazy server/index",
+    "restartOnSaveOptimized": "node --no-lazy --watch server/index",
     "start": "node server/index",
     "restartOnSave": "node --watch server/index",
     "host": "node standaloneClient/index",

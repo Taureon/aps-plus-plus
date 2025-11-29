@@ -47,7 +47,7 @@ Events.on('chatMessage', ({ message, socket, preventDefault }) => {
     };
 
     // Redefine all tanks and bosses
-    for (let entity of entities) {
+    for (let entity of entities.values()) {
         // If it's a valid type and it's not a turret
         if (!['tank', 'miniboss', 'food'].includes(entity.type)) continue;
         if (entity.bond) continue;

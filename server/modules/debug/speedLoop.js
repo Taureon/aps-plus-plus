@@ -12,16 +12,16 @@ const speedcheckloop = () => {
     let loops = logs.loops.getTallyCount(),
         active = logs.entities.getTallyCount();
     global.fps = (1000 / sum).toFixed(2);
-    for (let e of entities) {
+    for (let e of entities.values()) {
         if (e.isPlayer && e.socket) { // give the debug info i guess.
             e.socket.talk("svInfo", Config.gameModeName, (sum).toFixed(1));
         }
     }
-    if (sum > 1000 / Config.runSpeed / 30) {
+    if (sum > 1000 / Config.runSpeed / 40) {
         //fails++;
         if (Config.LOGS) {
             util.warn('~~ LAST SERVER TICK TOOK TOO LONG TO CALCULATE ~~');
-            util.warn('~~ LOOPS: ' + loops + '. ENTITIES: ' + entities.length + '//' + Math.round(active / loops) + '. VIEWS: ' + views.length + '. BACKLOGGED :: ' + (sum * Config.runSpeed * 3).toFixed(3) + '%! ~~');
+            util.warn('~~ LOOPS: ' + loops + '. ENTITIES: ' + entities.size + '//' + Math.round(active / loops) + '. VIEWS: ' + views.length + '. BACKLOGGED :: ' + (sum * Config.runSpeed * 3).toFixed(3) + '%! ~~');
             util.warn('Total activation time: ' + activationtime);
             util.warn('Total collision time: ' + collidetime);
             util.warn('Total cycle time: ' + movetime);

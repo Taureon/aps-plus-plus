@@ -17,7 +17,7 @@ for (let filename of Config.ROOM_SETUP) {
 
 global.room = {
     lastCycle: undefined,
-    cycleSpeed: 1000 / 30,
+    cycleSpeed: 1000 / 40,
     regenerateTick: Config.REGENERATE_TICK,
     setup: importedRoom,
     xgrid: importedRoom[0].length,
@@ -63,7 +63,7 @@ room.random = function() {
     };
 };
 room.getAt = location => {
-    if (!room.isInRoom(location)) return undefined;
+    if (!room.isInRoom(location)) return null;
     let a = Math.floor(location.y / room.tileWidth);
     let b = Math.floor(location.x / room.tileHeight);
     return room.setup[a][b];
@@ -103,26 +103,3 @@ for (let y in room.setup) {
         tile.init(tile);
     }
 }
-
-function roomLoop() {
-    for (let i = 0; i < entities.length; i++) {
-        let entity = entities[i],
-            tile = room.getAt(entity);
-        if (tile) tile.entities.push(entity);
-    }
-
-    for (let y = 0; y < room.setup.length; y++) {
-        for (let x = 0; x < room.setup[y].length; x++) {
-            let tile = room.setup[y][x];
-            tile.tick(tile);
-            tile.entities = [];
-        }
-    }
-
-    if (room.sendColorsToClient) {
-        room.sendColorsToClient = false;
-        sockets.broadcastRoom();
-    }
-}
-
-module.exports = { roomLoop };

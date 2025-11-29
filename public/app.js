@@ -688,7 +688,7 @@ function startGame() {
     }
     // initialize canvas.
     window.canvas.socket = global.socket;
-    setInterval(() => moveCompensation.iterate(global.motion), 1000 / 30);
+    setInterval(() => moveCompensation.iterate(global.motion), 1000 / 40);
     canvas.init();
     document.getElementById("gameCanvas").focus();
     window.onbeforeunload = () => true;

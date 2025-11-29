@@ -52,7 +52,7 @@ portal = new Tile({
             entity.protect()
 
             //also don't forget to bring her kids along the ride
-            for (let o of entities) {
+            for (let o of entities.values()) {
                 if (o.id !== entity.id && o.master.master.id === entity.id && (o.type === "drone" || o.type === "minion" || o.type === "satellite")) {
                     o.velocity.x += entity.velocity.x;
                     o.velocity.y += entity.velocity.y;

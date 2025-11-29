@@ -47,8 +47,7 @@ function spawn() {
 function death(entry) {
     sockets.broadcast(getTeamName(entry[1]) + "'s mothership has been killed!");
     global.defeatedTeams.push(-entry[1] - 1);
-    for (let i = 0; i < entities.length; i++) {
-        let o = entities[i];
+    for (const o of entities.values()) {
         if (o.team === -entry[1] - 1) {
             o.sendMessage("Your team has been eliminated.");
             o.kill();
@@ -64,7 +63,10 @@ function winner(teamId) {
 
 function loop() {
     if (teamWon) return;
-    let aliveNow = motherships.map(entry => [...entry, entities.find(entity => entity.id === entry[0])]);
+    const aliveNow = motherships.map(([id, data]) => {
+        const entity = entities.get(id);
+        return [id, data, entity];
+    });
     aliveNow = aliveNow.filter(entry => {
         if (!entry[2] || entry[2].isDead()) return death(entry);
         return true;

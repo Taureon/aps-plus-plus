@@ -11,9 +11,9 @@ function closeArena() {
     sockets.broadcast("Arena closed: No players may join!");
     util.log('Arena Closing initiated');
     global.arenaClosed = true;
-    for (let i = 0; i < entities.length; i++) {
-        if (entities[i].isBot) {
-            entities[i].kill();
+    for (const entity of entitites.values()) {
+        if (entity.isBot) {
+            entity.kill();
         }
     }
     for (let i = 0; i < 15; i++) {
@@ -47,8 +47,7 @@ function closeArena() {
         ticks++;
         if (ticks >= 20) return close();
         let alive = false;
-        for (let i = 0; i < entities.length; i++) {
-            let instance = entities[i];
+        for (const instance of entities.values()) {
             if (
                 instance.isPlayer || instance.isMothership ||
                 (instance.isDominator && instance.team !== TEAM_ROOM)

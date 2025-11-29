@@ -2648,141 +2648,131 @@ for (let i = 0; i < arraySize; i++) {
     colorArray.push('#' + ((1 << 24) + (rgb << 16) + (rgb << 8) + rgb).toString(16).slice(1));
 }
 class io_nearestDifferentMaster2 extends ioTypes.nearestDifferentMaster {
-    constructor(body, opts = {}) {
-        super(body);
-        this.lookAtDanger = opts.lookAtDanger ?? true;
-        this.firingAtMe = opts.firingAtMe ?? false;
-        this.timeout = opts.timeout || 90;
-    }
-    buildList(range) {
-        // Establish whom we judge in reference to
-        let mostDangerous = 0,
-            keepTarget = false;
-        // Filter through everybody...
-        let out = entities.filter(e =>
-            // Only look at those within our view, and our parent's view, not dead, not invisible, not our kind, not a bullet/trap/block etc
-            this.validate(e, this.body, this.body.master.master, range * range, range * range * 4 / 3)
-        ).filter((e) => {
-            // Only look at those within range and arc (more expensive, so we only do it on the few)
-            if (this.body.firingArc == null || this.body.aiSettings.view360 || Math.abs(util.angleDifference(util.getDirection(this.body, e), this.body.firingArc[0])) < this.body.firingArc[1]) {
-                mostDangerous = Math.max(e.dangerValue, mostDangerous);
-                return true;
-            }
-        }).filter((e) => {
-            // Even more expensive
-            return !this.wouldHitWall(this.body, e);
-        }).filter((e) => {
-            // Only return the highest tier of danger
-            if (!this.lookAtDanger) return true;
-            if (this.body.aiSettings.farm || e.dangerValue === mostDangerous) {
-                if (this.targetLock && e.id === this.targetLock.id) keepTarget = true;
-                return true;
-            }
-        });
-        // Reset target if it's not in there
-        if (!keepTarget) this.targetLock = undefined;
-        return out;
-    }
-    think(input) {
-        // Override target lock upon other commands
-        if (input.main || input.alt || this.body.master.autoOverride) {
-            this.targetLock = undefined;
-            return {};
-        }
-        // Otherwise, consider how fast we can either move to ram it or shoot at a potiential target.
-        let tracking = this.body.topSpeed,
-            damageRef = (this.body.bond == null) ? this.body : this.body.bond,
-            range = this.body.fov;
-        // Use whether we have functional guns to decide
-        for (let i = 0; i < this.body.guns.length; i++) {
-            if (this.body.guns[i].canShoot && !this.body.aiSettings.SKYNET) {
-                let v = this.body.guns[i].getTracking();
-                if (v.speed == 0 || v.range == 0) continue;
-                tracking = v.speed;
-                range = Math.min(range, (v.speed || 1.5) * (v.range < (this.body.size * 2) ? this.body.fov : v.range));
-                break;
-            }
-        }
-        if (!Number.isFinite(tracking)) {
-            tracking = this.body.topSpeed + .01;
-        }
-        if (!Number.isFinite(range)) {
-            range = 640 * this.body.FOV;
-        }
-        // Check if my target's alive
-        if (this.targetLock && (
-            !this.validate(this.targetLock, this.body, this.body.master.master, range * range, range * range * 4 / 3) ||
-            this.wouldHitWall(this.body, this.targetLock) // Very expensive
-        )) {
-            this.targetLock = undefined;
-            this.tick = 100;
-        }
-        // Think damn hard
-        if (this.tick++ > 15 * Config.runSpeed) {
-            this.tick = 0;
-            this.validTargets = this.buildList(range);
-            // Ditch our old target if it's invalid
-            if (this.targetLock && this.validTargets.indexOf(this.targetLock) === -1) {
-                this.targetLock = undefined;
-            }
-            // Lock new target if we still don't have one.
-            if (this.targetLock == null && this.validTargets.length) {
-                this.targetLock = (this.validTargets.length === 1) ? this.validTargets[0] : nearest(this.validTargets, {
-                    x: this.body.x,
-                    y: this.body.y
-                });
-                this.tick = -this.timeout;
-            }
-        }
-        // Lock onto whoever's shooting me.
-        if (this.firingAtMe && damageRef.collisionArray.length && damageRef.health.display() < this.oldHealth) {
-            this.oldHealth = damageRef.health.display();
-            if (this.validTargets.indexOf(damageRef.collisionArray[0]) === -1) {
-                let a = (damageRef.collisionArray[0].master.id === -1)
-                    ? damageRef.collisionArray[0].source
-                    : damageRef.collisionArray[0].master;
-                if (
-                    this.body.firingArc == null ||
-                    this.body.aiSettings.view360 ||
-                    Math.abs(util.angleDifference(util.getDirection(this.body, a), this.body.firingArc[0])) < this.body.firingArc[1]
-                ) {
-                    this.targetLock = a;
-                    this.tick = -(this.timeout * 5);
-                }
-            }
-        }
-        // Consider how fast it's moving and shoot at it
-        if (this.targetLock != null) {
-            let radial = this.targetLock.velocity;
-            let diff = {
-                x: this.targetLock.x - this.body.x,
-                y: this.targetLock.y - this.body.y,
-            }
-            /// Refresh lead time
-            if (this.tick % 4 === 0) {
-                this.lead = 0
-                // Find lead time (or don't)
-                if (!this.body.aiSettings.chase) {
-                    let toi = timeOfImpact(diff, radial, tracking)
-                    this.lead = toi
-                }
-            }
-            if (!Number.isFinite(this.lead)) {
-                this.lead = 0;
-            }
-            if (!this.accountForMovement) this.lead = 0;
-            // And return our aim
-            return {
-                target: {
-                    x: diff.x + this.lead * radial.x,
-                    y: diff.y + this.lead * radial.y,
-                },
-                fire: true,
-                main: true
-            };
-        }
-        return {};
-    }
+	constructor(body, opts = {}) {
+		super(body);
+		this.lookAtDanger = opts.lookAtDanger ?? true;
+		this.firingAtMe = opts.firingAtMe ?? false;
+		this.timeout = opts.timeout || 90;
+	}
+	buildList(range) {
+		const {
+			x,
+			y
+		} = this.body;
+		const potentialTargets = global.grid.query(x - range, y - range, x + range, y + range);
+		const sqrRange = range * range;
+		const sqrRangeMaster = sqrRange * 4 / 3;
+		const validCandidates = [];
+		for (const e of potentialTargets) {
+			if (this.validate(e, this.body, this.body.master.master, sqrRange, sqrRangeMaster) && (this.body.aiSettings.view360 || Math.abs(util.angleDifference(util.getDirection(this.body, e), this.body.firingArc[0])) < this.body.firingArc[1]) && !this.wouldHitWall(this.body, e)) {
+				validCandidates.push(e);
+			}
+		}
+		if (!validCandidates.length) {
+			this.targetLock = undefined;
+			return [];
+		}
+		let mostDangerous = 0;
+		if (this.lookAtDanger) {
+			for (const e of validCandidates) {
+				mostDangerous = Math.max(e.dangerValue, mostDangerous);
+			}
+		}
+		let keepTarget = false;
+		const finalTargets = validCandidates.filter(e => {
+			const isViable = !this.lookAtDanger || this.body.aiSettings.farm || e.dangerValue === mostDangerous;
+			if (isViable) {
+				if (this.targetLock && e.id === this.targetLock.id) {
+					keepTarget = true;
+				}
+				return true;
+			}
+			return false;
+		});
+		if (!keepTarget) {
+			this.targetLock = undefined;
+		}
+		return finalTargets;
+	}
+	think(input) {
+		if (input.main || input.alt || this.body.master.autoOverride) {
+			this.targetLock = undefined;
+			return {};
+		}
+		let tracking = this.body.topSpeed,
+			damageRef = (this.body.bond == null) ? this.body : this.body.bond,
+			range = this.body.fov;
+		for (let i = 0; i < this.body.guns.length; i++) {
+			if (this.body.guns[i].canShoot && !this.body.aiSettings.SKYNET) {
+				let v = this.body.guns[i].getTracking();
+				if (v.speed == 0 || v.range == 0) continue;
+				tracking = v.speed;
+				range = Math.min(range, (v.speed || 1.5) * (v.range < (this.body.size * 2) ? this.body.fov : v.range));
+				break;
+			}
+		}
+		if (!Number.isFinite(tracking)) {
+			tracking = this.body.topSpeed + .01;
+		}
+		if (!Number.isFinite(range)) {
+			range = 640 * this.body.FOV;
+		}
+		if (this.targetLock && (!this.validate(this.targetLock, this.body, this.body.master.master, range * range, range * range * 4 / 3) || this.wouldHitWall(this.body, this.targetLock))) {
+			this.targetLock = undefined;
+			this.tick = 100;
+		}
+		if (this.tick++ > 15 * Config.runSpeed) {
+			this.tick = 0;
+			this.validTargets = this.buildList(range);
+			if (this.targetLock && this.validTargets.indexOf(this.targetLock) === -1) {
+				this.targetLock = undefined;
+			}
+			if (this.targetLock == null && this.validTargets.length) {
+				this.targetLock = (this.validTargets.length === 1) ? this.validTargets[0] : nearest(this.validTargets, {
+					x: this.body.x,
+					y: this.body.y
+				});
+				this.tick = -this.timeout;
+			}
+		}
+		if (this.firingAtMe && damageRef.collisionArray.length && damageRef.health.display() < this.oldHealth) {
+			this.oldHealth = damageRef.health.display();
+			if (this.validTargets.indexOf(damageRef.collisionArray[0]) === -1) {
+				let a = (damageRef.collisionArray[0].master.id === -1) ? damageRef.collisionArray[0].source : damageRef.collisionArray[0].master;
+				if (this.body.firingArc == null || this.body.aiSettings.view360 || Math.abs(util.angleDifference(util.getDirection(this.body, a), this.body.firingArc[0])) < this.body.firingArc[1]) {
+					this.targetLock = a;
+					this.tick = -(this.timeout * 5);
+				}
+			}
+		}
+		if (this.targetLock != null) {
+			let radial = this.targetLock.velocity;
+			let diff = {
+				x: this.targetLock.x - this.body.x,
+				y: this.targetLock.y - this.body.y,
+			}
+			if (this.tick % 4 === 0) {
+				this.lead = 0
+				if (!this.body.aiSettings.chase) {
+					let toi = timeOfImpact(diff, radial, tracking)
+					this.lead = toi
+				}
+			}
+			if (!Number.isFinite(this.lead)) {
+				this.lead = 0;
+			}
+			if (!this.accountForMovement) this.lead = 0;
+			return {
+				target: {
+					x: diff.x + this.lead * radial.x,
+					y: diff.y + this.lead * radial.y,
+				},
+				fire: true,
+				main: true
+			};
+		}
+		return {};
+	}
 }
 ioTypes.nearestDifferentMaster2 = io_nearestDifferentMaster2;
 Class.toothlessBase = {

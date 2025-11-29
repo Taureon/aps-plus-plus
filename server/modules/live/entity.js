@@ -57,7 +57,7 @@ class Gun extends EventEmitter {
             this.destroyOldestChild = info.PROPERTIES.DESTROY_OLDEST_CHILD ?? false;
             if (this.destroyOldestChild) this.maxChildren++;
             this.shootOnDeath = info.PROPERTIES.SHOOT_ON_DEATH ?? false;
-            this.stack = info.PROPERTIES.STACK_GUN ?? true ;
+            this.stack = info.PROPERTIES.STACK_GUN ?? true;
             this.identifier = info.PROPERTIES.IDENTIFIER ?? null;
             if (info.PROPERTIES.TYPE != null) {
                 this.canShoot = true;
@@ -108,7 +108,7 @@ class Gun extends EventEmitter {
     }
     live() {
         if (!this.canShoot || this.body.master.invuln) return;
-        
+
         // Iterate recoil
         this.recoil();
 
@@ -133,19 +133,19 @@ class Gun extends EventEmitter {
                 // Repeatedly check for shoot permission to prevent ultra low reload guns from exceeding the child limit in 1 tick
                 shootPermission = this.checkShootPermission();
             }
-        // If we're not shooting, only cycle up to where we'll have the proper firing delay
+            // If we're not shooting, only cycle up to where we'll have the proper firing delay
         } else if (this.cycleTimer > this.maxCycleTimer) {
             this.cycleTimer = this.maxCycleTimer;
         }
     }
     checkShootPermission() {
         let shootPermission = this.maxChildren
-        ? this.maxChildren >
+            ? this.maxChildren >
             this.children.length * this.childrenLimitFactor
-        : this.body.maxChildren
-        ? this.body.maxChildren >
-            this.body.children.length * this.childrenLimitFactor
-        : true;
+            : this.body.maxChildren
+                ? this.body.maxChildren >
+                this.body.children.length * this.childrenLimitFactor
+                : true;
 
         // Handle destroying oldest child
         if (this.destroyOldestChild && !shootPermission) {
@@ -169,7 +169,7 @@ class Gun extends EventEmitter {
         // If told to, create an independent entity
         if (this.independentChildren) {
             this.defineIndependentBullet(bullet);
-        // Else make a regular bullet
+            // Else make a regular bullet
         } else {
             this.defineBullet(bullet);
         }
@@ -195,16 +195,16 @@ class Gun extends EventEmitter {
         let offsetAngle = this.offsetDirection + this.angle + this.body.facing,
             gunlength = this.length + Config.bulletSpawnOffset * this.width * this.shootSettings.size / 2,
 
-        // Calculate offset of gun base and gun end based
+            // Calculate offset of gun base and gun end based
             offsetBaseX = this.offset * Math.cos(offsetAngle),
             offsetBaseY = this.offset * Math.sin(offsetAngle),
             offsetEndX = gunlength * Math.cos(this.facing),
             offsetEndY = gunlength * Math.sin(this.facing),
 
-        // Combine offsets to get final values
+            // Combine offsets to get final values
             offsetFinalX = offsetBaseX + offsetEndX,
             offsetFinalY = offsetBaseY + offsetEndY;
-        
+
         return [offsetFinalX, offsetFinalY]
     }
     createBullet(spawnX, spawnY) {
@@ -226,7 +226,7 @@ class Gun extends EventEmitter {
         let velocityMagnitude = this.negativeRecoil * this.shootSettings.speed * this.bulletSkills.spd * (shudder + 1) * Config.runSpeed,
             velocityDirection = this.angle + this.body.facing + spread,
             velocity = new Vector(velocityMagnitude * Math.cos(velocityDirection), velocityMagnitude * Math.sin(velocityDirection));
-        
+
         // Apply velocity inheritance
         if (this.body.velocity.length) {
             let extraBoost =
@@ -242,16 +242,16 @@ class Gun extends EventEmitter {
 
         // Spawn bullet
         spawnX = this.body.x + this.body.size * spawnX - velocity.x,
-        spawnY = this.body.y + this.body.size * spawnY - velocity.y;
-        
+            spawnY = this.body.y + this.body.size * spawnY - velocity.y;
+
         // Independent children
         if (this.independentChildren) {
-            let bullet = new Entity({x: spawnX, y: spawnY});
+            let bullet = new Entity({ x: spawnX, y: spawnY });
             return bullet;
         }
 
         // Dependent children
-        let bullet = new Entity({x: spawnX, y: spawnY}, this.master.master);
+        let bullet = new Entity({ x: spawnX, y: spawnY }, this.master.master);
         bullet.velocity = velocity;
         return bullet;
     }
@@ -273,7 +273,7 @@ class Gun extends EventEmitter {
     defineBullet(bullet) {
         // Set bullet source
         bullet.source = this.body;
-        
+
         // Define bullet based on natural properties and skills
         this.bulletType.SIZE = (this.body.size * this.width * this.shootSettings.size) / 2;
         bullet.define(this.bulletType);
@@ -298,7 +298,7 @@ class Gun extends EventEmitter {
         if (!bullet.settings.necroTypes) {
             return;
         }
-        
+
         // Set all necroType gun references to parent gun
         for (let shape of bullet.settings.necroTypes) {
             bullet.settings.necroDefineGuns[shape] = this;
@@ -329,7 +329,7 @@ class Gun extends EventEmitter {
         // Pre-flatten bullet types to save on doing the same define() sequence a million times
         this.bulletType = Array.isArray(type) ? type : [type];
         // Preset BODY because not all definitions have BODY defined when flattened
-        let flattenedType = {BODY: {}};
+        let flattenedType = { BODY: {} };
         for (let type of this.bulletType) {
             type = ensureIsClass(type);
             util.flattenDefinition(flattenedType, type);
@@ -467,12 +467,12 @@ class Gun extends EventEmitter {
     }
     getPhotoInfo() {
         return {
-            ...this.lastShot, 
+            ...this.lastShot,
             color: this.color.compiled,
             alpha: this.alpha,
             strokeWidth: this.strokeWidth,
-            borderless: this.borderless, 
-            drawFill: this.drawFill, 
+            borderless: this.borderless,
+            drawFill: this.drawFill,
             drawAbove: this.drawAbove,
             length: this.length,
             width: this.width,
@@ -721,7 +721,6 @@ class Entity extends EventEmitter {
         this.isInGrid = false;
         this.removeFromGrid = () => {
             if (this.isInGrid) {
-                grid.removeObject(this);
                 this.isInGrid = false;
             }
         };
@@ -729,7 +728,6 @@ class Entity extends EventEmitter {
             if (!mockupsLoaded) return;
             if (!this.collidingBond && this.bond != null) return;
             if (!this.isInGrid) {
-                grid.addObject(this);
                 this.isInGrid = true;
             }
         };
@@ -766,8 +764,8 @@ class Entity extends EventEmitter {
             yMin: 0,
             yMax: room.height,
         },
-        // Define it
-        this.SIZE = 1;
+            // Define it
+            this.SIZE = 1;
         this.sizeMultiplier = 1;
         this.define("genericEntity");
         // Initalize physics and collision
@@ -806,41 +804,27 @@ class Entity extends EventEmitter {
         this.globalStore = {};
         this.store = {};
         // This is for collisions
-        this.AABB_data = {};
-        this.AABB_savedSize = 0;
+        this.minX = 0;
+        this.minY = 0;
+        this.maxX = 0;
+        this.maxY = 0;
         this.collidingBond = false
         this.updateAABB = (active) => {
-            if (!this.collidingBond && this.bond != null) return 0;
-            if (!active) {
-                this.AABB_data.active = false;
-                return 0;
-            }
-            if (this.isPlayer && !this.isDead()) this.refreshBodyAttributes();
-            this.antiNaN.update();
-            // Get bounds
-            let x1 = Math.min(this.x, this.x + this.velocity.x + this.accel.x) - this.realSize - 5;
-            let y1 = Math.min(this.y, this.y + this.velocity.y + this.accel.y) - this.realSize - 5;
-            let x2 = Math.max(this.x, this.x + this.velocity.x + this.accel.x) + this.realSize + 5;
-            let y2 = Math.max(this.y, this.y + this.velocity.y + this.accel.y) + this.realSize + 5;
-            let size = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
-            let sizeDiff = this.AABB_savedSize / size;
-            // Update data
-            this.AABB_data = {
-                min: [x1, y1],
-                max: [x2, y2],
-                active: true,
-                size: size,
-            };
-            // Update grid if needed
-            if (sizeDiff > Math.SQRT2 || sizeDiff < Math.SQRT1_2) {
-                this.removeFromGrid();
-                this.addToGrid();
-                this.AABB_savedSize = size;
+            if (!active || (!this.collidingBond && this.bond != null)) {
+                this.isInGrid = false;
+            } else {
+                this.isInGrid = true;
+                if (this.isPlayer && !this.isDead()) {
+                    this.refreshBodyAttributes();
+                }
+                this.minX = this.x - this.size;
+                this.minY = this.y - this.size;
+                this.maxX = this.x + this.size;
+                this.maxY = this.y + this.size;
             }
         };
-        this.getAABB = () => this.AABB_data;
         this.updateAABB(true);
-        entities.push(this);
+        entities.set(this.id, this);
         for (let v of views) v.add(this);
         this.activation.update();
         Events.emit('spawn', this);
@@ -1212,7 +1196,7 @@ class Entity extends EventEmitter {
 
                 let savedFacing = host.facing;
                 let savedSize = host.SIZE;
-                
+
                 host.controllers = [];
                 host.define("genericEntity");
                 gun.defineBullet(host);
@@ -1728,7 +1712,7 @@ class Entity extends EventEmitter {
         }
     }
     destroyAllChildren() {
-        for (let instance of entities) {
+        for (let instance of entities.values()) {
             if (
                 instance.settings.clearOnMasterUpgrade &&
                 instance.master.id === this.id
@@ -2038,18 +2022,19 @@ class Entity extends EventEmitter {
             return 0;
         }
         if (this.damageReceived > 0) {
-            let damageInflictor = []
-            let damageTool = []
-
-            for (let i = 0; i < this.collisionArray.length; i++) {
-                let instance = this.collisionArray[i];
+            const damageInflictor = [];
+            const damageTool = [];
+            for (const instance of this.collisionArray) {
                 if (instance.type === 'wall' || !instance.damage) continue;
-                damageInflictor.push(instance.master)
-                damageTool.push(instance)
+                damageInflictor.push(instance.master);
+                damageTool.push(instance);
             }
-            this.emit('damage', { body: this, damageInflictor, damageTool });
+            this.emit('damage', {
+                body: this,
+                damageInflictor,
+                damageTool
+            });
         }
-        // Life-limiting effects
         if (this.settings.diesAtRange) {
             this.range -= 1 / Config.runSpeed;
             if (this.range < 0) {
@@ -2057,185 +2042,141 @@ class Entity extends EventEmitter {
             }
         }
         if (this.settings.diesAtLowSpeed) {
-            if (
-                !this.collisionArray.length &&
-                this.velocity.length < this.topSpeed / 2
-            ) {
+            if (!this.collisionArray.length && this.velocity.length < this.topSpeed / 2) {
                 this.health.amount -= this.health.getDamage(1 / Config.runSpeed);
             }
         }
-        // Shield regen and damage
-        if (this.shield.max) {
-            if (this.damageReceived) {
-                let shieldDamage = this.shield.getDamage(this.damageReceived);
-                this.damageReceived -= shieldDamage;
-                this.shield.amount -= shieldDamage;
-            }
+        if (this.shield.max && this.damageReceived > 0) {
+            const shieldDamage = this.shield.getDamage(this.damageReceived);
+            this.damageReceived -= shieldDamage;
+            this.shield.amount -= shieldDamage;
         }
-        // Health damage
-        if (this.damageReceived) {
-            let healthDamage = this.health.getDamage(this.damageReceived);
+        if (this.damageReceived > 0) {
+            const healthDamage = this.health.getDamage(this.damageReceived);
             this.blend.amount = 1;
             this.health.amount -= healthDamage;
         }
         this.damageReceived = 0;
-        // Check for death
-        if (this.isDead()) {
-
-            this.emit('dead');
-
-            //Shoot on death
-            for (let i = 0; i < this.guns.length; i++) {
-                let gun = this.guns[i];
-                if (gun.shootOnDeath && gun.body != null) {
-                    gun.fire();
-                }
+        if (!this.isDead()) {
+            return 0;
+        }
+        this.emit('dead');
+        for (const gun of this.guns) {
+            if (gun.shootOnDeath && gun.body != null) {
+                gun.fire();
             }
-
-            // MEMORY LEAKS ARE BAD!!!!
-            for (let i = 0; i < this.turrets.length; i++) {
-                this.turrets[i].kill();
-            }
-
-            // Initalize message arrays
-            let killers = [],
-                killTools = [],
-                notJustFood = false;
-            // If I'm a tank, call me a nameless player
-            let name = this.master.name == ""
-                ? this.master.type === "tank"
-                    ? "an unnamed " + this.label : this.master.type === "miniboss"
-                        ? "a visiting " + this.label : this.label.substring(0, 3) == 'The'
-                            ? this.label : util.addArticle(this.label)
-                : this.master.name + "'s " + this.label;
-            // Calculate the jackpot
-            let jackpot = util.getJackpot(this.skill.score) / this.collisionArray.length;
-            // Now for each of the things that kill me...
-            for (let i = 0; i < this.collisionArray.length; i++) {
-                let instance = this.collisionArray[i];
-                if (instance.type === 'wall' || !instance.damage) continue;
-                if (instance.master.settings.acceptsScore) {
-                    // If it's not food, give its master the score
-                    if (instance.master.type === "tank" || instance.master.type === "miniboss") {
-                        notJustFood = true;
-                    }
-                    instance.master.skill.score += jackpot;
-                    killers.push(instance.master); // And keep track of who killed me
-                } else if (instance.settings.acceptsScore) {
-                    instance.skill.score += jackpot;
+        }
+        for (const turret of this.turrets) {
+            turret.kill();
+        }
+        const killerSet = new Set();
+        const killTools = [];
+        let notJustFood = false;
+        const jackpot = this.collisionArray.length > 0 ? util.getJackpot(this.skill.score) / this.collisionArray.length : util.getJackpot(this.skill.score);
+        for (const instance of this.collisionArray) {
+            if (instance.type === 'wall' || !instance.damage) continue;
+            const master = instance.master;
+            if (master.settings.acceptsScore) {
+                if (master.type === "tank" || master.type === "miniboss") {
+                    notJustFood = true;
                 }
-                killTools.push(instance); // Keep track of what actually killed me
+                master.skill.score += jackpot;
+                killerSet.add(master);
+            } else if (instance.settings.acceptsScore) {
+                instance.skill.score += jackpot;
             }
-            // Remove duplicates
-            killers = killers.filter((elem, index, self) => index == self.indexOf(elem));
-            this.emit('death', { body: this, killers, killTools });
-            killers.forEach((e) => e.emit('kill', { body: e, entity: this }));
-            // If there's no valid killers (you were killed by food), change the message to be more passive
-            let killText = "You have been killed by ",
-                doISendAText = this.settings.givesKillMessage;
-
-            for (let i = 0; i < killers.length; i++) {
-                let instance = killers[i];
-
-                switch (this.type) {
-                    case "tank":
-                        killers.length > 1 ? instance.killCount.assists++ : instance.killCount.solo++;
-                        break;
-
-                    case "food":
-                    case "crasher":
-                        instance.killCount.polygons++;
-                        break
-
-                    case "miniboss":
-                        instance.killCount.bosses++;
-                        break;
-                }
-
-                this.killCount.killers.push(instance.index);
-            };
-            // Add the killers to our death message, also send them a message
-            if (notJustFood) {
-                for (let i = 0; i < killers.length; i++) {
-                    let instance = killers[i];
-                    if (instance.master.type !== "food" && instance.master.type !== "crasher") {
-                        killText += instance.name == "" ? killText == "" ? "An unnamed player" : "an unnamed player" : instance.name;
-                        killText += " and ";
-                    }
-                    // Only if we give messages
+            killTools.push(instance);
+        }
+        const killers = [...killerSet];
+        this.emit('death', {
+            body: this,
+            killers,
+            killTools
+        });
+        killers.forEach((e) => e.emit('kill', {
+            body: e,
+            entity: this
+        }));
+        const doISendAText = this.settings.givesKillMessage;
+        for (const killer of killers) {
+            switch (this.type) {
+                case "tank":
+                    killers.length > 1 ? killer.killCount.assists++ : killer.killCount.solo++;
+                    break;
+                case "food":
+                case "crasher":
+                    killer.killCount.polygons++;
+                    break;
+                case "miniboss":
+                    killer.killCount.bosses++;
+                    break;
+            }
+            this.killCount.killers.push(killer.index);
+        }
+        let killText = "You have been killed by ";
+        if (notJustFood) {
+            const killerNames = [];
+            for (const killer of killers) {
+                if (killer.master.type !== "food" && killer.master.type !== "crasher") {
+                    killerNames.push(killer.name || "an unnamed player");
                     if (doISendAText) {
-                        instance.sendMessage("You killed " + name + (killers.length > 1 ? " (with some help)." : "."));
+                        const message = `You killed ${this.master.name || util.addArticle(this.label)}${killers.length > 1 ? " (with some help)." : "."}`;
+                        killer.sendMessage(message);
                     }
                     if (this.settings.killMessage) {
-                        instance.sendMessage("You " + this.settings.killMessage + " " + name + (killers.length > 1 ? " (with some help)." : "."));
+                        const message = `You ${this.settings.killMessage} ${this.master.name || util.addArticle(this.label)}${killers.length > 1 ? " (with some help)." : "."}`;
+                        killer.sendMessage(message);
                     }
                 }
-                // Prepare the next part of the next
-                killText = killText.slice(0, -4) + "killed you with ";
             }
-            // Broadcast
-            if (this.settings.broadcastMessage) {
-                sockets.broadcast(this.settings.broadcastMessage);
-            }
-            if (this.settings.defeatMessage) {
-                let text = util.addArticle(this.label, true);
-                if (notJustFood) {
-                    text += " has been defeated by";
-                    for (let { name } of killers) {
-                        text += " ";
-                        text += name === "" ? "an unnamed player" : name;
-                        text += " and";
-                    }
-                    text = text.slice(0, -4);
-                    text += "!";
-                } else {
-                    text += " fought a polygon... and the polygon won.";
-                }
-                sockets.broadcast(text);
-            }
-
-            // instead of "a Machine Gunner Bullet and a Machine Gunner Bullet and a Machine Gunner Bullet",
-            // make it say " 3 Machine Gunner Bullets"
-            let killCounts = {};
-            for (let { label } of killTools) {
-                if (!killCounts[label]) killCounts[label] = 0;
-                killCounts[label]++;
-            }
-            let killCountEntries = Object.entries(killCounts).map(([name, count], i) => name);
-            for (let i = 0; i < killCountEntries.length; i++) {
-                killText += (killCounts[killCountEntries[i]] == 1) ? util.addArticle(killTools[i].label) : killCounts[killCountEntries[i]] + ' ' + killCountEntries[i] + 's';
-                killText += i < killCountEntries.length - 2 ? ', ' : ' and ';
-            }
-
-            // Prepare it and clear the collision array.
-            killText = killText.slice(0, -5);
-            if (killText === "You have been kille") {
-                killText = "You have died a stupid death";
-            }
-            if (!this.dontSendDeathMessage) {
-                this.sendMessage(killText + ".");
-            }
-            // If I'm the leader, broadcast it:
-            if (this.id === room.topPlayerID) {
-                let usurptText = this.name === "" ? "The leader" : this.name;
-                if (notJustFood) {
-                    usurptText += " has been usurped by";
-                    for (let i = 0; i < killers.length; i++) {
-                        usurptText += " ";
-                        usurptText += killers[i].name === "" ? "an unnamed player" : killers[i].name;
-                        usurptText += " and";
-                    }
-                    usurptText = usurptText.slice(0, -4) + "!";
-                } else {
-                    usurptText += " fought a polygon... and the polygon won.";
-                }
-                sockets.broadcast(usurptText);
-            }
-            this.setKillers(killers);
-            // Kill it
-            return 1;
+            killText += killerNames.join(' and ') + " with ";
         }
-        return 0;
+        const toolCounts = new Map();
+        for (const {
+            label
+        }
+            of killTools) {
+            toolCounts.set(label, (toolCounts.get(label) || 0) + 1);
+        }
+        const toolStrings = [];
+        for (const [label, count] of toolCounts.entries()) {
+            toolStrings.push(count === 1 ? util.addArticle(label) : `${count} ${label}s`);
+        }
+        if (toolStrings.length > 0) {
+            if (toolStrings.length === 1) {
+                killText += toolStrings[0];
+            } else {
+                killText += toolStrings.slice(0, -1).join(', ') + ' and ' + toolStrings.slice(-1);
+            }
+        } else if (killText === "You have been killed by ") {
+            killText = "You have died a stupid death";
+        }
+        if (!this.dontSendDeathMessage) {
+            this.sendMessage(killText.trim() + ".");
+        }
+        if (this.settings.broadcastMessage) {
+            sockets.broadcast(this.settings.broadcastMessage);
+        }
+        if (this.settings.defeatMessage) {
+            let text = util.addArticle(this.label, true);
+            if (notJustFood) {
+                text += " has been defeated by " + killers.map(k => k.name || "an unnamed player").join(" and ") + "!";
+            } else {
+                text += " fought a polygon... and the polygon won.";
+            }
+            sockets.broadcast(text);
+        }
+        if (this.id === room.topPlayerID) {
+            let usurptText = (this.name || "The leader");
+            if (notJustFood) {
+                usurptText += " has been usurped by " + killers.map(k => k.name || "an unnamed player").join(" and ") + "!";
+            } else {
+                usurptText += " fought a polygon... and the polygon won.";
+            }
+            sockets.broadcast(usurptText);
+        }
+        this.setKillers(killers);
+        return 1;
     }
     protect() {
         entitiesToAvoid.push(this);
@@ -2254,47 +2195,50 @@ class Entity extends EventEmitter {
         this.health.amount = -100;
     }
     destroy() {
-        // Remove from the protected entities list
         if (this.isProtected) {
-            util.remove(entitiesToAvoid, entitiesToAvoid.indexOf(this));
+            const index = entitiesToAvoid.indexOf(this);
+            if (index !== -1) {
+                entitiesToAvoid[index] = entitiesToAvoid[entitiesToAvoid.length - 1];
+                entitiesToAvoid.pop();
+            }
         }
-        // Remove from minimap
-        let i = minimap.findIndex(entry => entry[0] === this.id);
-        if (i != -1) {
-            util.remove(minimap, i);
+        const minimapIndex = minimap.findIndex(entry => entry[0] === this.id);
+        if (minimapIndex !== -1) {
+            minimap[minimapIndex] = minimap[minimap.length - 1];
+            minimap.pop();
         }
-        // Remove this from views
-        for (let view of views) {
+        for (const view of views) {
             view.remove(this);
         }
-        // Remove from parent lists if needed
-        if (this.parent != null) {
-            util.remove(this.parent.children, this.parent.children.indexOf(this));
+        if (this.parent) {
+            const children = this.parent.children;
+            const index = children.indexOf(this);
+            if (index !== -1) {
+                children[index] = children[children.length - 1];
+                children.pop();
+            }
         }
-        // Kill all of its children
-        for (let instance of entities) {
-            if (instance.source.id === this.id) {
+        for (const instance of entities.values()) {
+            if (instance.source?.id === this.id) {
                 if (instance.settings.persistsAfterDeath) {
                     instance.source = instance;
                 } else {
                     instance.kill();
                 }
             }
-            if (instance.parent && instance.parent.id === this.id) {
+            if (instance.parent?.id === this.id) {
                 instance.parent = null;
             }
-            if (instance.master.id === this.id) {
+            if (instance.master?.id === this.id) {
                 instance.kill();
-                instance.master = instance;
             }
         }
-        // Remove everything bound to it
-        for (let i = 0; i < this.turrets.length; i++) {
-            this.turrets[i].destroy();
+        for (const turret of this.turrets) {
+            turret.destroy();
         }
-        // Remove from the collision grid
         this.removeFromGrid();
         this.isGhost = true;
+        entities.delete(this.id);
     }
     isDead() {
         return this.health.amount <= 0;

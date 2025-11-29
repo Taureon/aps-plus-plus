@@ -446,8 +446,7 @@ function incoming(message, socket) {
         case "1":
             //suicide squad
             if (player.body != null && !player.body.underControl) {
-                for (let i = 0; i < entities.length; i++) {
-                    let instance = entities[i];
+                for (const instance of entities.values()) {
                     if (instance.settings.clearOnMasterUpgrade && instance.master.id === player.body.id) {
                         instance.kill();
                     }
@@ -458,8 +457,7 @@ function incoming(message, socket) {
         case "A":
             if (player.body != null) return 1;
             let possible = []
-            for (let i = 0; i < entities.length; i++) {
-                let entry = entities[i];
+            for (const entry of entities.values()) {
                 if (entry.type === "miniboss") possible.push(entry);
                 if (entry.isDominator || entry.isMothership || entry.isArenaCloser) possible.push(entry);
                 if (Config.MODE === "tdm" && socket.rememberedTeam === entry.team && entry.type === "tank" && entry.bond == null) possible.push(entry);
@@ -523,9 +521,12 @@ function incoming(message, socket) {
                 player.body.sendMessage("You are now controlling the mothership.");
                 player.body.sendMessage("Press F to relinquish control of the mothership.");
             } else if (Config.DOMINATOR_LOOP) {
-                let dominators = entities.map((entry) => {
-                    if (entry.isDominator && entry.team === player.body.team && !entry.underControl) return entry;
-                }).filter(x=>x);
+                const dominators = [];
+                for (const entity of entities.values()) {
+                    if (entity.isDominator && entity.team === player.body.team && !entity.underControl) {
+                        dominators.push(entity);
+                    }
+                }
                 if (!dominators.length) {
                     player.body.sendMessage("There are no dominators available that are on your team or already controlled by an player.");
                     return 1;
@@ -1179,9 +1180,9 @@ class View {
             this.lastVisibleUpdate = camera.lastUpdate;
             // And update the nearby list
             this.nearby = []
-            for (let i = 0; i < entities.length; i++) {
-                if (check(this.socket.camera, entities[i])) {
-                    this.nearby.push(entities[i]);
+            for (const entity of entities.values()) {
+                if (check(this.socket.camera, entity)) {
+                    this.nearby.push(entity);
                 }
             }
         }
@@ -1291,7 +1292,7 @@ const Delta = class {
 // Deltas
 let minimapAll = new Delta(5, args => {
     let all = [];
-    for (let my of entities) {
+    for (let my of entities.values()) {
         if (my.allowedOnMinimap && (
             my.alwaysShowOnMinimap ||
             (my.type === "wall" && my.alpha > 0.2) ||
@@ -1314,7 +1315,7 @@ let minimapAll = new Delta(5, args => {
 });
 let minimapTeams = new Delta(3, args => {
     let all = [];
-    for (let my of entities)
+    for (let my of entities.values())
         if (my.type === "tank" && my.team === args[0] && my.master === my && my.allowedOnMinimap) {
             all.push({
                 id: my.id,
@@ -1342,7 +1343,7 @@ let leaderboard = new Delta(7, args => {
                 team
             });
         }
-    for (let instance of entities) {
+    for (let instance of entities.values()) {
         if (Config.MOTHERSHIP_LOOP) {
             if (instance.isMothership) list.push(instance);
         } else if (Config.TAG) {

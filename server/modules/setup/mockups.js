@@ -239,9 +239,6 @@ for (let k in Class) {
     }
 }
 
-// Remove them
-purgeEntities();
-
 let mockupsLoadEndTime = performance.now();
 console.log("Finished compiling " + mockupData.length + " classes into mockups.");
 console.log("Mockups generated in " + util.rounder(mockupsLoadEndTime - mockupsLoadStartTime, 3) + " milliseconds.\n");
